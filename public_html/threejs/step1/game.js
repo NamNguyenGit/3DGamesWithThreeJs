@@ -15,7 +15,7 @@ class Game {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 20, 10);
-    const ambient = new THREE.AmbientLight(0x707070);
+    const ambient = new THREE.AmbientLight(0x707070); // soft white light
 
     const material = new THREE.MeshPhongMaterial({ color: 0xffaa00 });
 
@@ -26,6 +26,7 @@ class Game {
     this.scene.add(ambient);
 
     this.camera.position.z = 3;
+
     this.animate();
   }
 
@@ -34,6 +35,7 @@ class Game {
     requestAnimationFrame(function () {
       game.animate();
     });
+
     this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
 
