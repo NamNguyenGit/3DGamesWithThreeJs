@@ -2,7 +2,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 
 app.get('/', function(req,res){
-    res.send("heleo")
+    res.sendFile(__dirname + "/index.html")
 })
 
 http.listen(3000, function(){
