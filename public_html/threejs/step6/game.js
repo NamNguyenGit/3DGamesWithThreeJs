@@ -66,6 +66,8 @@ class Game{
 		// model
 		const loader = new THREE.FBXLoader();
 		const game = this;
+
+		this.loadEnvironment(loader);
 		
 		loader.load( `${this.assetsPath}fbx/people/FireFighter.fbx`, function ( object ) {
 
@@ -107,6 +109,40 @@ class Game{
         
 		window.addEventListener( 'resize', function(){ game.onWindowResize(); }, false );
 	}
+
+	loadEnvironment(loader){
+		const game = this;
+		loader.load(`${this.assetsPath}fbx/town.fbx`, function(object){
+			game.environment = object;
+			game.colliders = [];
+			game.scene.add(object);
+            
+			object.traverse( function ( child ) {
+				if ( child.isMesh ) {
+					if (child.name.startsWith("proxy")){
+						game.colliders.push(child);
+						child.material.visible = false;
+					}else{
+						child.castShadow = true;
+						child.receiveShadow = true;
+					}
+				}
+			} );
+			
+			const tloader = new THREE.CubeTextureLoader();
+			tloader.setPath( `${game.assetsPath}/images/` );
+
+			var textureCube = tloader.load( [
+				'px.jpg', 'nx.jpg',
+				'py.jpg', 'ny.jpg',
+				'pz.jpg', 'nz.jpg'
+			] );
+
+			game.scene.background = textureCube;
+			
+			game.animate();
+		})
+	}
 	
     loadNextAnim(loader){
 		let anim = this.anims.pop();
@@ -117,7 +153,7 @@ class Game{
 				game.loadNextAnim(loader);
 			}else{
                 game.createCameras();
-                game.createColliders();
+                // game.createColliders();
                 game.joystick = new JoyStick({
                     onMove: game.playerControl,
                     game: game
@@ -129,28 +165,28 @@ class Game{
 		});	
 	}
     
-    createColliders(){
-        const geometry = new THREE.BoxGeometry(500, 400, 500);
-        const material = new THREE.MeshBasicMaterial({color:0x222222, wireframe:true});
+    // createColliders(){
+    //     const geometry = new THREE.BoxGeometry(500, 400, 500);
+    //     const material = new THREE.MeshBasicMaterial({color:0x222222, wireframe:true});
         
-        this.colliders = [];
+    //     this.colliders = [];
         
-        for (let x=-5000; x<5000; x+=1000){
-            for (let z=-5000; z<5000; z+=1000){
-                if (x==0 && z==0) continue;
-                const box = new THREE.Mesh(geometry, material);
-                box.position.set(x, 250, z);
-                this.scene.add(box);
-                this.colliders.push(box);
-            }
-        }
+    //     for (let x=-5000; x<5000; x+=1000){
+    //         for (let z=-5000; z<5000; z+=1000){
+    //             if (x==0 && z==0) continue;
+    //             const box = new THREE.Mesh(geometry, material);
+    //             box.position.set(x, 250, z);
+    //             this.scene.add(box);
+    //             this.colliders.push(box);
+    //         }
+    //     }
         
-        const geometry2 = new THREE.BoxGeometry(1000, 40, 1000);
-        const stage = new THREE.Mesh(geometry2, material);
-        stage.position.set(0, 20, 0);
-        this.colliders.push(stage);
-        this.scene.add(stage);
-    }
+    //     const geometry2 = new THREE.BoxGeometry(1000, 40, 1000);
+    //     const stage = new THREE.Mesh(geometry2, material);
+    //     stage.position.set(0, 20, 0);
+    //     this.colliders.push(stage);
+    //     this.scene.add(stage);
+    // }
     
     movePlayer(dt){
 		const pos = this.player.object.position.clone();
